@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>CRUD SPRINGBOOT</title>
+
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+	<style type="text/css">
+		html {
+			margin-left: 5%;
+			margin-right: 5%;
+			margin-top: 5%;
+		}
+
+		body {
+			background-color: slategrey;
+		}
+	</style>
+
+	</style>
+
+</head>
+
+<body>
+	<h3><b> Spring Boot - ENVIO DE DADOS PARA FORMULÁRIO </b></h3>
+
+	<form action="" id="formCadastroUser">
+
+		<div class="mb-3">
+			<label for="ir" class="form-label"><b>ID do usuário:</b></label>
+			<input type="text" class="form-control" id="id" readonly="readyonly">
+		</div>
+
+		<div class="mb-3">
+			<label for="nome" class="form-label"><b>Nome do usuário</b></label>
+			<input type="text" class="form-control" id="nome" placeholder="Informe o nome:" required="required">
+		</div>
+
+		<div class="mb-3">
+			<label for="idade" class="form-label"><b>Informe a idade:</b></label>
+			<input type="number" class="form-control" id="idade" placeholder="Informe a idade:">
+		</div>
+
+	</form>
+
+	<button type="button" class="btn btn-success" onclick="salvarUsuario()"><b>Enviar informações</b></button>
+	<button type="button" class="btn btn-info"
+		onclick="document.getElementById('formCadastroUser').reset();"><b>Novo</b></button>
+	<button type="button" class="btn btn-warning" data-bs-toggle="modal"
+		data-bs-target="#ModalPesquisa">Pesquisar</button>
+	<button type="button" class="btn btn-dark" onclick="deletarNaTelaInicial();"><b>Deletar</b></button>
+
+	<hr>
+	<a href="https://www.linkedin.com/in/jorgemoreira1895/" target="_blank">
+		<h5>
+			<font color="DAR"> MEU LINKEDIN
+		</h5>
+		</font>
+	</a>
+
+	<div class="modal fade" id="ModalPesquisa" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Pesquisa de usuário</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="mb-3">
+							<label for="nameBusca" class="col-form-label">Informe o nome:</label>
+							<input type="text" class="form-control" id="nameBusca">
+						</div>
+						<button type="button" class="btn btn-secondary" onclick="pesquisarUser()">Buscar</button>
+					</form>
+					<div style="height: 300px; overflow:scroll;">
+						<table class="table" id="tabelaResultados">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">Nome</th>
+									<th scope="col">Editar</th>
+									<th scope="col">Deletar</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+		integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<!-- Option 1: Bootstrap Bundle with Popper -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+
+	<script type="text/javascript">
+
+		function deletarNaTelaInicial() {
+			var id = $('#id').val();
+			if (id != null && id.trim() != '') {
+				deleteUser(id);
+				document.getElementById('formCadastroUser').reset();
+			}
+		}
+
+		function deleteUser(id) {
+			if (confirm('Deseja realmente deletar?')) {
+				$.ajax({
+					method: "DELETE",
+					url: "deletar",
+					data: "iduser=" + id,
+					success: function (response) {
+
+						$('#' + id).remove();
+						alert(response);
+					}
+				}).fail(function (xhr, status, errorThrown) {
+					alert("Erro ao deletar o usuário! " + xhr.responseText);
+				});
+			}
+		}
+		function pesquisarUser() {
+			var nome = $('#nameBusca').val();
+
+			if (nome != null && nome.trim() != '') {
+
+				$.ajax({
+					method: "GET",
+					url: "buscarPorNome",
+					data: "nome=" + nome,
+					success: function (response) {
+						$('#tabelaResultados > tbody > tr').remove();
+						for (var i = 0; i < response.length; i++) {
+							$('#tabelaResultados > tbody').append('<tr id="' + response[i].id + '"><td>' + response[i].id + '</td><td>' + response[i].nome + '</td><td><button type="button" onclick="colocarEmEdicao(' + response[i].id + ')" class="btn btn-dark">Visualizar/Editar</button></td><td><button type="button" class="btn btn-danger"onclick="deleteUser(' + response[i].id + ')">Deletar</button></td></tr>');
+						}
+					}
+				}).fail(function (xhr, status, errorThrown) {
+					alert("Erro ao buscar os usuários! " + xhr.responseText);
+				});
+			}
+		}
+
+		function colocarEmEdicao(id) {
+
+			$.ajax({
+				method: "GET",
+				url: "buscarUserId",
+				data: "iduser=" + id,
+				success: function (response) {
+
+					$("#id").val(response.id);
+					$("#nome").val(response.nome);
+					$("#idade").val(response.idade);
+
+					$('#ModalPesquisa').modal('hide');
+				}
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao buscar os usuários por ID! " + xhr.responseText);
+			});
+		}
+
+		function salvarUsuario() {
+
+			var id = $("#id").val();
+			var nome = $("#nome").val();
+			var idade = $("#idade").val();
+
+			if (nome == null || nome != null && nome.trim() == '') {
+
+				$('#nome').focus();
+				alert('Você precisa informar o nome!');
+				return;
+			}
+
+			if (idade == null || idade != null && idade.trim() == '') {
+
+				$('#idade').focus();
+				alert('Você precisa informar a idade!');
+				return;
+			}
+
+			$.ajax({
+				method: "POST",
+				url: "salvar",
+				data: JSON.stringify({ id: id, nome: nome, idade: idade }),
+				contentType: "application/json; charset=utf-8",
+				success: function (response) {
+					$("#id").val(response.id);
+					alert("Enviado com sucesso.")
+				}
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao gravar os dados! " + xhr.responseText);
+			});
+		}
+	</script>
+</body>
+
+</html>
