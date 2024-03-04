@@ -1,4 +1,4 @@
-# CRUD-SPRINGBOOT (Na Branch Master)
+# CRUD-SPRINGBOOT 
 
 <h3>REST API simples para envio de dados (nome e idade) através de um formulário. Conta com pesquisa de usuário e opção para deletar usuários também. </h3>
 
